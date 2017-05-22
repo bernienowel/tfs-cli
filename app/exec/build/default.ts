@@ -23,6 +23,7 @@ export class BuildBase<TArguments extends BuildArguments, TResult> extends TfCom
 		this.registerCommandArgument("definitionId", "Build Definition ID", "Identifies a build definition.", args.IntArgument, null);
 		this.registerCommandArgument("definitionName", "Build Definition Name", "Name of a Build Definition.", args.StringArgument, null);
 		this.registerCommandArgument("status", "Build Status", "Build status filter.", args.StringArgument, null);
+		this.registerCommandArgument("result", "Build Result", "Build result filter. ", args.StringArgument, null);
 		this.registerCommandArgument("top", "Number of builds", "Maximum number of builds to return.", args.IntArgument, null);
 		this.registerCommandArgument("buildId", "Build ID", "Identifies a particular Build.", args.IntArgument);
 	}

@@ -15,7 +15,7 @@ export class BuildGetList extends buildBase.BuildBase<buildBase.BuildArguments, 
 	protected serverCommand = true;
 
 	protected getHelpArgs(): string[] {
-		return ["definitionId", "definitionName", "status", "top", "project"];
+		return ["definitionId", "definitionName", "status", "result", "top", "project"];
 	}
 
 	public exec(): Promise<buildContracts.Build[]> {
@@ -27,9 +27,10 @@ export class BuildGetList extends buildBase.BuildBase<buildBase.BuildArguments, 
 			this.commandArgs.definitionId.val(),
 			this.commandArgs.definitionName.val(),
 			this.commandArgs.status.val(),
+			this.commandArgs.result.val(),
 			this.commandArgs.top.val()
 		]).then((values) => {
-			const [project, definitionId, definitionName, status, top] = values;
+			const [project, definitionId, definitionName, status, result, top] = values;
 			var definitions: number[] = null;
 			if (definitionId) {
 				definitions = [definitionId as number];
@@ -39,7 +40,7 @@ export class BuildGetList extends buildBase.BuildBase<buildBase.BuildArguments, 
 				return buildapi.getDefinitions(project as string, definitionName as string).then((defs: buildContracts.DefinitionReference[]) => {
 					if(defs.length > 0) {
 						definitions = [defs[0].id];
-						return this._getBuilds(buildapi, project as string, definitions, buildContracts.BuildStatus[status], top as number);
+						return this._getBuilds(buildapi, project as string, definitions, buildContracts.BuildStatus[status], top as number, buildContracts.BuildResult[result]);
 					}
 					else {
 						trace.debug("No definition found with name " + definitionName);
@@ -47,7 +48,7 @@ export class BuildGetList extends buildBase.BuildBase<buildBase.BuildArguments, 
 					}
 				});
 			}
-			return this._getBuilds(buildapi, project as string, definitions, buildContracts.BuildStatus[status], top as number);
+			return this._getBuilds(buildapi, project as string, definitions, buildContracts.BuildStatus[status], top as number, buildContracts.BuildResult[result]);
 		});
 	}
 
@@ -66,12 +67,13 @@ export class BuildGetList extends buildBase.BuildBase<buildBase.BuildArguments, 
 			trace.info("definition name : %s", build.definition ? build.definition.name : "unknown");
 			trace.info("requested by    : %s", build.requestedBy ? build.requestedBy.displayName : "unknown");
 			trace.info("status          : %s", buildContracts.BuildStatus[build.status]);
+			trace.info("result          : %s", buildContracts.BuildResult[build.result]);
 			trace.info("queue time      : %s", build.queueTime ? build.queueTime.toJSON() : "unknown");
 		});
 	}
 
-	private _getBuilds(buildapi: buildClient.IBuildApi, project: string, definitions: number[], status: string, top: number) {
+	private _getBuilds(buildapi: buildClient.IBuildApi, project: string, definitions: number[], status: string, top: number, result: string) {
 		// I promise that this was as painful to write as it is to read
-		return buildapi.getBuilds(project, definitions, null, null, null, null, null, null, buildContracts.BuildStatus[status], null, null, null, top, null, null, null, null, null, null, null, null);
+		return buildapi.getBuilds(project, definitions, null, null, null, null, null, null, buildContracts.BuildStatus[status], buildContracts.BuildResult[result], null, null, top, null, null, null, null, null, null, null, null);
 	}
 }
